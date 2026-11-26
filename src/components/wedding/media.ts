@@ -43,7 +43,6 @@ export const GALLERY_IMAGES = [
   "/images/gallery-2.jpg",
   "/images/gallery-3.jpg",
   "/images/gallery-4.jpg",
-  "/images/gallery-4.jpg",
 ] as const;
 
 // Ngunduh Mantu: Senin, 21 Desember 2026 Pukul 09.00 WIB (sesuai gambar slide 5)
