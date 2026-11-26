@@ -106,17 +106,30 @@ export default function CoverOverlay({ onOpen }: CoverOverlayProps) {
               </button>
             </div>
 
-            {/* Blok nama tamu — di bawah tombol Open, tampil setelah tombol Open muncul */}
+            {/* Blok nama tamu — murni tipografi elegan tanpa kartu berwarna.
+                Legibility dijaga pakai glow krem lembut (match wallpaper),
+                bukan kotak solid. */}
             <div
-              className={`absolute inset-x-0 top-[75.5%] z-10 flex justify-center px-8 transition-opacity duration-700 ${
-                ready && !leaving ? "opacity-100" : "opacity-0"
+              className={`absolute inset-x-0 top-[75.5%] z-10 flex justify-center px-8 transition-all duration-700 ${
+                ready && !leaving
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-2 opacity-0"
               }`}
             >
-              <div className="max-w-full rounded-2xl bg-[#39575e]/55 px-5 py-2.5 text-center ring-1 ring-white/35 backdrop-blur-sm">
-                <p className="font-display text-[9px] uppercase tracking-[0.18em] text-white/80">
-                  Kepada Yth. Bapak/Ibu/Saudara/i
+              <div className="flex max-w-full flex-col items-center text-center">
+                <div className="flex items-center gap-2.5" aria-hidden="true">
+                  <span className="h-px w-8 bg-[#39575e]/45" />
+                  <span className="size-[5px] rotate-45 bg-[#39575e]/60" />
+                  <p className="font-display text-[8.5px] uppercase tracking-[0.32em] text-[#39575e] [text-shadow:0_0_10px_rgba(244,241,234,0.95)]">
+                    Kepada Yth.
+                  </p>
+                  <span className="size-[5px] rotate-45 bg-[#39575e]/60" />
+                  <span className="h-px w-8 bg-[#39575e]/45" />
+                </div>
+                <p className="mt-1.5 font-display text-[9.5px] uppercase tracking-[0.2em] text-[#39575e]/80 [text-shadow:0_0_10px_rgba(244,241,234,0.95)]">
+                  Bapak/Ibu/Saudara/i
                 </p>
-                <p className="mt-1 font-display text-[15px] font-semibold italic leading-snug text-white [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]">
+                <p className="mt-1.5 font-script text-[27px] leading-tight text-[#39575e] [text-shadow:0_0_14px_rgba(244,241,234,1),0_1px_12px_rgba(244,241,234,0.9)]">
                   {guestName}
                 </p>
               </div>
