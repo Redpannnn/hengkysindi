@@ -5,13 +5,13 @@
 
 export const MEDIA = {
   // Slide 1 — video cover (tampil sebelum tombol Open diklik)
-  // Upload file ke /public/media/slide-1.mp4
-  coverVideo: "/media/slide-1.mp4",
+  // Upload file ke /public/media/SLIDE 1.mp4
+  coverVideo: "/media/SLIDE 1.mp4",
   // Slide 2 — video pembuka (ditampilkan setelah undangan dibuka)
-  // Upload file ke /public/media/slide-2.mp4
-  openingVideo: "/media/slide-2.mp4",
+  // Upload file ke /public/media/SLIDE 2.mp4
+  openingVideo: "/media/SLIDE 2.mp4",
   // Slide Gift — background wallpaper (video slide 2, diputar ulang tanpa suara)
-  giftVideo: "/media/slide-2.mp4",
+  giftVideo: "/media/SLIDE 2.mp4",
   // Poster/fallback bila video belum diupload (tekstur floral Vintage Peacock)
   giftPoster: "/poster-slide2.jpg",
   // Slide 3 — kutipan QS. Ar-Rum: 21
