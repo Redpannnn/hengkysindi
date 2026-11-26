@@ -1,0 +1,25 @@
+CARA DEPLOY KE VERCEL — Undangan Hengky & Sindi
+================================================
+
+1. SEBELUM DEPLOY — TAMBAHKAN VIDEO (PENTING!)
+   Folder public/media masih kosong. Upload 2 video berikut:
+   - public/media/slide-1.mp4  (video cover / slide 1)
+   - public/media/slide-2.mp4  (video pembuka / slide 2, dipakai juga
+                                sebagai background slide Gift)
+   Bila belum diupload, website tetap jalan memakai gambar fallback.
+
+2. CARA DEPLOY:
+   a. Extract zip ini.
+   b. (Opsional) Push ke GitHub, lalu di vercel.com pilih
+      "Import Git Repository".
+   c. ATAU langsung: install vercel CLI ("npm i -g vercel"),
+      masuk folder hasil extract, jalankan "vercel --prod".
+
+3. Semua setting sudah otomatis terdeteksi Vercel:
+   - Framework: Next.js
+   - Build: prisma generate && next build
+   - Database SQLite (db/custom.db) ikut ter-deploy; data ucapan
+     tersimpan sementara di /tmp pada serverless Vercel.
+
+4. File musik latar ada di public/music, semua gambar ada di
+   public/images. Tidak perlu setting environment variable apapun.
