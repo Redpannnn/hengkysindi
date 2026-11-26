@@ -58,7 +58,7 @@ export default function MusicPlayer({ active }: MusicPlayerProps) {
     <>
       <audio
         ref={audioRef}
-        src="/music/azure-default.mp3"
+        src="/music/Cinta Terakhir.mp3"
         loop
         preload="auto"
         className="hidden"
