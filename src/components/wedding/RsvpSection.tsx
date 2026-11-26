@@ -11,13 +11,17 @@ import { toast } from "sonner";
 import { MEDIA } from "./media";
 import Reveal from "./Reveal";
 
-type Attendance = "HADIR" | "TIDAK_HADIR" | "MASIH_RAGU";
+/**
+ * Nilai attendance ngikutin database Turso (repo ngunduhmantu):
+ * "hadir" | "tidak" | "ragu" — lihat src/app/api/rsvp/route.ts
+ */
+type Attendance = "hadir" | "tidak" | "ragu";
 
 interface Wish {
   id: string;
   name: string;
   attendance: Attendance;
-  message: string;
+  message: string | null;
   createdAt: string;
 }
 
@@ -29,28 +33,30 @@ interface Stats {
 }
 
 const ATTENDANCE_OPTIONS: { value: Attendance; label: string }[] = [
-  { value: "HADIR", label: "Hadir" },
-  { value: "TIDAK_HADIR", label: "Tidak Hadir" },
-  { value: "MASIH_RAGU", label: "Masih Ragu" },
+  { value: "hadir", label: "Hadir" },
+  { value: "tidak", label: "Tidak Hadir" },
+  { value: "ragu", label: "Masih Ragu" },
 ];
 
 const ATTENDANCE_BADGE: Record<Attendance, { label: string; className: string }> = {
-  HADIR: {
+  hadir: {
     label: "Hadir",
     className: "bg-[#39575e] text-white",
   },
-  TIDAK_HADIR: {
+  tidak: {
     label: "Tidak Hadir",
     className: "bg-[#a5484a]/10 text-[#a5484a] ring-1 ring-[#a5484a]/30",
   },
-  MASIH_RAGU: {
+  ragu: {
     label: "Masih Ragu",
     className: "bg-[#b58a3c]/10 text-[#96702a] ring-1 ring-[#b58a3c]/30",
   },
 };
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleString("id-ID", {
+  const d = new Date(iso.includes("T") ? iso : iso.replace(" ", "T"));
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleString("id-ID", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -61,7 +67,7 @@ function formatDate(iso: string) {
 
 export default function RsvpSection() {
   const [name, setName] = useState("");
-  const [attendance, setAttendance] = useState<Attendance>("HADIR");
+  const [attendance, setAttendance] = useState<Attendance>("hadir");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -69,17 +75,65 @@ export default function RsvpSection() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Prefill nama tamu dari link personal ?to=<code|nama> (tanpa menimpa
+  // kalau tamu sudah sempat mengetik). Code terdaftar → nama lengkap DB;
+  // tidak terdaftar → tampil literal; tanpa ?to= → kosong.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get("to");
+    if (!raw) return;
+    const decoded = decodeURIComponent(raw.replace(/\+/g, " ")).trim();
+    if (!decoded) return;
+
+    fetch(`/api/guests/lookup?code=${encodeURIComponent(decoded)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        const resolved = data?.name ?? decoded;
+        setName((prev) => (prev ? prev : resolved));
+      })
+      .catch(() => {
+        setName((prev) => (prev ? prev : decoded));
+      });
+  }, []);
+
+  const computeStats = (rows: Wish[]): Stats => {
+    const hadir = rows.filter((r) => r.attendance === "hadir").length;
+    const tidak = rows.filter((r) => r.attendance === "tidak").length;
+    const ragu = rows.filter((r) => r.attendance === "ragu").length;
+    return { hadir, tidakHadir: tidak, ragu, total: rows.length };
+  };
+
   const fetchWishes = useCallback(async () => {
-    try {
-      const res = await fetch("/api/wishes", { cache: "no-store" });
-      if (!res.ok) throw new Error("gagal memuat");
-      const data = await res.json();
-      setWishes(data.wishes ?? []);
-      setStats(data.stats ?? null);
-    } catch {
-      toast.error("Gagal memuat ucapan. Coba muat ulang halaman.");
-    } finally {
-      setLoading(false);
+    // AUTO-RETRY: request pertama pas function Vercel/Turso lagi cold start
+    // kadang gagal (mis. koneksi pertama ke Turso kena timeout). Jadi jangan
+    // langsung nampilin toast error — coba lagi maksimal 4x dengan jeda yang
+    // makin lama. Toast error cuma muncul kalau SEMUA percobaan gagal.
+    const MAX_ATTEMPTS = 4;
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      try {
+        if (attempt > 1) {
+          await new Promise((r) => setTimeout(r, 1200 * (attempt - 1)));
+        }
+        const res = await fetch("/api/rsvp", { cache: "no-store" });
+        if (!res.ok) throw new Error("gagal memuat");
+        const data = await res.json();
+        const rows: Wish[] = Array.isArray(data?.rows) ? data.rows : [];
+        setWishes(rows);
+        setStats(computeStats(rows));
+        setLoading(false);
+        return;
+      } catch {
+        if (attempt === MAX_ATTEMPTS) {
+          setLoading(false);
+          toast.error("Gagal memuat ucapan. Coba muat ulang halaman.", {
+            action: {
+              label: "Muat Ulang",
+              onClick: () => window.location.reload(),
+            },
+            duration: 8000,
+          });
+        }
+      }
     }
   }, []);
 
@@ -98,14 +152,14 @@ export default function RsvpSection() {
 
     setSubmitting(true);
     try {
-      const res = await fetch("/api/wishes", {
+      const res = await fetch("/api/rsvp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, attendance, message }),
+        body: JSON.stringify({ name, attendance, count: 1, message }),
       });
       const data = await res.json();
 
-      if (!res.ok) {
+      if (!res.ok || !data.ok) {
         toast.error(data.error ?? "Gagal mengirim ucapan.");
         return;
       }
@@ -269,7 +323,8 @@ export default function RsvpSection() {
                 </div>
               ) : (
                 wishes.map((wish) => {
-                  const badge = ATTENDANCE_BADGE[wish.attendance] ?? ATTENDANCE_BADGE.HADIR;
+                  const badge =
+                    ATTENDANCE_BADGE[wish.attendance] ?? ATTENDANCE_BADGE.hadir;
                   return (
                     <article
                       key={wish.id}
