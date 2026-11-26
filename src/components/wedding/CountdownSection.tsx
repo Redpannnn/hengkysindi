@@ -116,7 +116,7 @@ export default function CountdownSection() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Buka lokasi acara di Google Maps"
-            className="group flex items-center gap-2 rounded-full bg-[#39575e]/90 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-[0_6px_18px_rgba(57,87,94,0.35)] ring-1 ring-white/40 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-[#2e4a51] active:scale-95"
+            className="group flex origin-center scale-[0.6] items-center gap-2 rounded-full bg-[#39575e]/90 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-[0_6px_18px_rgba(57,87,94,0.35)] ring-1 ring-white/40 backdrop-blur-sm transition-all duration-300 hover:scale-[0.66] hover:bg-[#2e4a51] active:scale-[0.55]"
           >
             <MapPin
               className="size-3.5 transition-transform duration-300 group-hover:-translate-y-0.5"
