@@ -13,6 +13,30 @@ export default function CoverOverlay({ onOpen }: CoverOverlayProps) {
   const [leaving, setLeaving] = useState(false);
   const [ready, setReady] = useState(false);
 
+  // Nama tamu — di-resolve dari URL ?to=<code|nama>:
+  //   • ?to=budi      → lookup DB → "Budi Santoso" (jika code terdaftar)
+  //   • ?to=Budi+Sapo → tidak terdaftar → tampil "Budi Sapo" literal
+  //   • (tanpa ?to=)  → fallback "Tamu Undangan"
+  const [guestName, setGuestName] = useState("Tamu Undangan");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get("to");
+    if (!raw) return;
+    const decoded = decodeURIComponent(raw.replace(/\+/g, " ")).trim();
+    if (!decoded) return;
+
+    // Cek di database dulu — kalau code terdaftar, pakai nama lengkapnya.
+    fetch(`/api/guests/lookup?code=${encodeURIComponent(decoded)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setGuestName(data?.name ?? decoded);
+      })
+      .catch(() => {
+        setGuestName(decoded);
+      });
+  }, []);
+
   // Tombol Open muncul halus sesaat setelah cover tampil,
   // dan tetap tampil walau video gagal dimuat agar tamu tidak terjebak di cover.
   useEffect(() => {
@@ -80,6 +104,22 @@ export default function CoverOverlay({ onOpen }: CoverOverlayProps) {
                 />
                 Open
               </button>
+            </div>
+
+            {/* Blok nama tamu — di bawah tombol Open, tampil setelah tombol Open muncul */}
+            <div
+              className={`absolute inset-x-0 top-[75.5%] z-10 flex justify-center px-8 transition-opacity duration-700 ${
+                ready && !leaving ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              <div className="max-w-full rounded-2xl bg-[#39575e]/55 px-5 py-2.5 text-center ring-1 ring-white/35 backdrop-blur-sm">
+                <p className="font-display text-[9px] uppercase tracking-[0.18em] text-white/80">
+                  Kepada Yth. Bapak/Ibu/Saudara/i
+                </p>
+                <p className="mt-1 font-display text-[15px] font-semibold italic leading-snug text-white [text-shadow:0_1px_8px_rgba(0,0,0,0.25)]">
+                  {guestName}
+                </p>
+              </div>
             </div>
           </div>
         </div>
