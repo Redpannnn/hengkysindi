@@ -7,6 +7,7 @@ import CountdownSection from "@/components/wedding/CountdownSection";
 import GallerySection from "@/components/wedding/GallerySection";
 import GiftSection from "@/components/wedding/GiftSection";
 import RsvpSection from "@/components/wedding/RsvpSection";
+import GuestManager from "@/components/wedding/GuestManager";
 import MusicPlayer from "@/components/wedding/MusicPlayer";
 import Reveal from "@/components/wedding/Reveal";
 import { MEDIA } from "@/components/wedding/media";
@@ -14,13 +15,21 @@ import { MEDIA } from "@/components/wedding/media";
 export default function WeddingInvitation() {
   const [opened, setOpened] = useState(false);
 
+  // ?manage → halaman admin kelola tamu (bukan undangan).
+  const [isManage, setIsManage] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsManage(new URLSearchParams(window.location.search).has("manage"));
+  }, []);
+
   // Mulai selalu dari atas halaman & matikan scroll restoration browser
   useEffect(() => {
+    if (isManage) return;
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
     }
     window.scrollTo(0, 0);
-  }, []);
+  }, [isManage]);
 
   // Setelah Open diklik, pastikan mulai dari slide 2 (paling atas)
   useEffect(() => {
@@ -29,13 +38,20 @@ export default function WeddingInvitation() {
     }
   }, [opened]);
 
-  // Kunci scroll selama cover (slide 1) tampil, buka setelah Open diklik
+  // Kunci scroll selama cover (slide 1) tampil, buka setelah Open diklik.
+  // Di halaman /?manage scroll dibiarin normal (biar list tamu bisa discroll).
   useEffect(() => {
+    if (isManage) return;
     document.documentElement.style.overflow = opened ? "" : "hidden";
     return () => {
       document.documentElement.style.overflow = "";
     };
-  }, [opened]);
+  }, [opened, isManage]);
+
+  // Halaman admin — kelola daftar tamu via /?manage
+  if (isManage) {
+    return <GuestManager />;
+  }
 
   return (
     <div className="relative min-h-screen bg-[#39575e]">
