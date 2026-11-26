@@ -81,9 +81,9 @@ export default function GallerySection() {
           </div>
         </Reveal>
 
-        {/* Preview kecil — klik untuk tampil di preview besar */}
+        {/* Preview kecil — satu baris, klik untuk tampil di preview besar */}
         <Reveal delay={0.15}>
-          <div className="mx-auto mt-5 grid w-full max-w-[340px] grid-cols-3 gap-2.5">
+          <div className="mx-auto mt-5 flex w-full max-w-[340px] items-center gap-2">
             {GALLERY_IMAGES.map((src, i) => (
               <button
                 key={`${i}-${src}`}
@@ -91,9 +91,9 @@ export default function GallerySection() {
                 onClick={() => setIndex(i)}
                 aria-label={`Tampilkan gambar ${i + 1}`}
                 aria-pressed={i === index}
-                className={`aspect-square w-full overflow-hidden rounded-xl transition-all duration-300 ${
+                className={`aspect-square min-w-0 flex-1 overflow-hidden rounded-lg transition-all duration-300 ${
                   i === index
-                    ? "opacity-100 ring-2 ring-[#39575e] ring-offset-2 ring-offset-[#f4f1ea]"
+                    ? "opacity-100 ring-2 ring-[#39575e] ring-offset-1 ring-offset-[#f4f1ea]"
                     : "opacity-60 ring-1 ring-white/50 hover:opacity-100"
                 }`}
               >
