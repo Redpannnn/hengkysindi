@@ -17,7 +17,7 @@ export const MEDIA = {
   // Slide 3 — kutipan QS. Ar-Rum: 21
   slide3: "/images/slide3.jpg",
   // Slide 4 — profil mempelai
-  slide4: "/images/slide4.jpg",
+  slide4: "/images/slide 3.2.jpg",
   // Slide 5 — Ngunduh Mantu & Save The Date (kotak countdown diisi overlay)
   slide5: "/images/slide5.jpg",
   // Slide 9 — penutup / terima kasih
